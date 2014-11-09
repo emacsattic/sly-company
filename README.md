@@ -11,20 +11,14 @@ framework Nikolaj Schumacher. sly-company is based on
 
 ## Setup
 
-Install via [MELPA](http://melpa.org/#/sly-company), or alternatively
-do the following in your `~/.emacs` or `~/.emacs.d/init/el` init file.
-
-```el
-(add-to-list 'load-path "/path/to/sly-company")
-(require 'sly-company)
-```
-
-In either case add this to the init file as well:
+The recommended install is via
+[MELPA](http://melpa.org/#/sly-company), where all you need to add to
+your `~/.emacs` or `~/.emacs.d/init/el` init file is:
 
 ```el
 (add-hook 'sly-mode-hook 'sly-company-mode)
-(add-to-list 'company-backends 'sly-company)
-
+(eval-after-load 'company
+  '(add-to-list 'company-backends 'sly-company))
 ```
 
 The following bindings for `company-active-map` may be useful:
@@ -34,4 +28,12 @@ The following bindings for `company-active-map` may be useful:
 (define-key company-active-map (kbd "\C-p") 'company-select-previous)
 (define-key company-active-map (kbd "\C-d") 'company-show-doc-buffer)
 (define-key company-active-map (kbd "M-.") 'company-show-location)
-````
+```
+
+If not using MELPA, precede those lines with
+
+```el
+(add-to-list 'load-path "/path/to/company-mode")
+(add-to-list 'load-path "/path/to/sly-company")
+(require 'sly-company)
+```

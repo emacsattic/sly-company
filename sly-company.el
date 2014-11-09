@@ -64,6 +64,7 @@
   :group 'sly-company
   :type 'boolean)
 
+;;;###autoload
 (define-minor-mode sly-company-mode
   "Minor mode for using `company-mode' with SLY."
   nil nil nil
@@ -78,7 +79,7 @@
                        (funcall callback (first result)))
                      package)))))
 
-
+;;;###autoload
 (defun company-sly (command &optional arg &rest ignored)
   "Company mode backend for sly."
   (case command
