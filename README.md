@@ -1,24 +1,37 @@
-slime-company
-=============
+sly-company
+===========
 
-A company-mode completion backend for Slime.
+A [company-mode](http://company-mode.github.io) Emacs completion
+backend for [SLY](https://github.com/capitaomorte/sly), a Common Lisp
+IDE.
 
-This is a backend implementation for the Emacs completion package
-company-mode by Nikolaj Schumacher. More info about this package
-is available at http://company-mode.github.io/
+[company-mode](http://company-mode.github.io) is a completion
+framework Nikolaj Schumacher. sly-company is based on
+[slime-company](https://github.com/anwyn/slime-company).
 
-# Installation
+## Setup
 
-Put this file somewhere into your load-path (or just into
-slime-path/contribs) and then call
+Install via [MELPA](http://melpa.org/#/sly-company), or alternatively
+do the following in your `~/.emacs` or `~/.emacs.d/init/el` init file.
 
-    (slime-setup '(slime-company))
+```el
+(add-to-list 'load-path "/path/to/sly-company")
+(require 'sly-company)
+```
 
-I also have the following, IMO more convenient key bindings for
-company mode in my .emacs:
+In either case add this to the init file as well:
 
-    (define-key company-active-map (kbd "\C-n") 'company-select-next)
-    (define-key company-active-map (kbd "\C-p") 'company-select-previous)
-    (define-key company-active-map (kbd "\C-d") 'company-show-doc-buffer)
-    (define-key company-active-map (kbd "<tab>") 'company-complete)
+```el
+(add-hook 'sly-mode-hook 'sly-company-mode)
+(add-to-list 'company-backends 'sly-company)
 
+```
+
+The following bindings for `company-active-map` may be useful:
+
+```el
+(define-key company-active-map (kbd "\C-n") 'company-select-next)
+(define-key company-active-map (kbd "\C-p") 'company-select-previous)
+(define-key company-active-map (kbd "\C-d") 'company-show-doc-buffer)
+(define-key company-active-map (kbd "M-.") 'company-show-location)
+````
