@@ -5,7 +5,7 @@
 ;; Author: Ole Arndt <anwyn@sugarshark.com>
 ;; Keywords: convenience, lisp, abbrev
 ;; Version: 0.8
-;; Package-Requires: ((sly "1.0.0-alpha") (company "0.7"))
+;; Package-Requires: ((sly "1.0.0-alpha") (company "0.7") (emacs "24.3"))
 ;;
 ;; This file is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -53,6 +53,7 @@
 ;;; Code:
 
 (require 'company)
+(require 'cl-lib)
 
 (defgroup sly-company nil
   "Interaction between sly and the company completion mode."
@@ -80,9 +81,9 @@
                      package)))))
 
 ;;;###autoload
-(defun company-sly (command &optional arg &rest ignored)
+(defun sly-company (command &optional arg &rest ignored)
   "Company mode backend for sly."
-  (case command
+  (cl-case command
     ('init nil)
     ('prefix
      (when (and sly-company-mode
@@ -113,9 +114,7 @@
            (when (buffer-live-p buffer)
              (cons buffer (with-current-buffer buffer
                             (point))))))))
-    ('post-completion
-     (when sly-company-after-completion
-       (funcall sly-company-after-completion arg)))
+    ('post-completion)
     ('sorted nil)))
 
 (provide 'sly-company)
