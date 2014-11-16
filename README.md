@@ -9,6 +9,8 @@ IDE.
 framework Nikolaj Schumacher. sly-company is based on
 [slime-company](https://github.com/anwyn/slime-company).
 
+![screenshot](screenshot.jpg)
+
 ## Setup
 
 The recommended install is via
