@@ -117,6 +117,11 @@
     ('post-completion)
     ('sorted nil)))
 
+;; Automatically add `sly-company' to `company-backends' on library
+;; load. It's a noop unless `sly-company-mode' is non-nil.
+;; 
+(add-to-list 'company-backends 'sly-company)
+
 (provide 'sly-company)
 
 ;;; sly-company.el ends here

@@ -17,9 +17,10 @@ your `~/.emacs` or `~/.emacs.d/init/el` init file is:
 
 ```el
 (add-hook 'sly-mode-hook 'sly-company-mode)
-(eval-after-load 'company
-  '(add-to-list 'company-backends 'sly-company))
 ```
+
+Optionally, use `M-x sly-company-mode` in the buffers where you want
+completion to happen.
 
 The following bindings for `company-active-map` may be useful:
 
