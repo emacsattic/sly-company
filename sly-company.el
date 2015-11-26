@@ -77,7 +77,7 @@
                    (sly-eval-async
                        `(slynk:simple-completions ,prefix ',package)
                      (lambda (result)
-                       (funcall callback (first result)))
+                       (funcall callback (cl-first result)))
                      package)))))
 
 ;;;###autoload
