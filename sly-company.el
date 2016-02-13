@@ -60,6 +60,18 @@
   :group 'company
   :group 'sly)
 
+(defcustom sly-company-completion 'simple
+  "Which Sly completion to use: `simple' or `fuzzy'.
+
+`simple' just displays the completion candidate,
+`fuzzy' also displays the classification flags as an annotation,
+alignment of annotations via `company-tooltip-align-annotations'
+is recommended."
+  :group 'sly-company
+  :type '(choice
+          (const simple)
+          (const fuzzy)))
+
 (defcustom sly-company-complete-in-comments-and-strings nil
   "Should sly-company also complete in comments and strings."
   :group 'sly-company
@@ -71,14 +83,57 @@
   nil nil nil
   (company-mode 1))
 
-(defun sly-company-fetch-candidates-async (prefix)
+(defun sly-company-fetch-candidates-simple (prefix)
   (let ((package (sly-current-package)))
-    (cons :async (lambda (callback)
-                   (sly-eval-async
-                       `(slynk:simple-completions ,prefix ',package)
-                     (lambda (result)
-                       (funcall callback (cl-first result)))
-                     package)))))
+    (lambda (callback)
+      (sly-eval-async
+          `(slynk:simple-completions ,prefix ',package)
+        (lambda (result)
+          (funcall callback (cl-first result)))
+        package))))
+
+(defun sly-company-fetch-candidates-fuzzy (prefix)
+  (let ((package (sly-current-package)))
+    (lambda (callback)
+      (sly-eval-async
+          `(slynk:fuzzy-completions ,prefix ',package)
+        (lambda (result)
+          (funcall callback
+                   (mapcar (lambda (completion)
+                             (propertize (first completion)
+                                         'score (second completion)
+                                         'flags (fourth completion)))
+                           (cl-first result))))
+        package))))
+
+(defun sly-company-fetch-candidates-async (prefix)
+  (cons :async
+        (ecase sly-company-completion
+          (simple (sly-company-fetch-candidates-simple prefix))
+          (fuzzy (sly-company-fetch-candidates-fuzzy prefix)))))
+
+(defun sly-company-meta (candidate)
+  (let ((arglist (sly-eval `(slynk:operator-arglist ,candidate ,(sly-current-package)))))
+    (if arglist (sly-autodoc--fontify arglist)
+      :not-available)))
+
+(defun sly-company-doc-buffer (candidate)
+  (let ((doc (sly-eval `(slynk:describe-symbol ,candidate))))
+    (with-current-buffer (company-doc-buffer)
+      (insert doc)
+      (goto-char (point-min))
+      (current-buffer))))
+
+(defun sly-company-location (candidate)
+  (let ((source-buffer (current-buffer)))
+    (save-window-excursion
+      (sly-edit-definition candidate)
+      (let ((buffer (if (eq source-buffer (current-buffer))
+                        sly-xref-last-buffer
+                      (current-buffer))))
+        (when (buffer-live-p buffer)
+          (cons buffer (with-current-buffer buffer
+                         (point))))))))
 
 ;;;###autoload
 (defun sly-company (command &optional arg &rest ignored)
@@ -95,27 +150,16 @@
      (when (sly-connected-p)
        (sly-company-fetch-candidates-async (substring-no-properties arg))))
     ('meta
-     (let ((arglist (sly-eval `(slynk:operator-arglist ,arg ,(sly-current-package)))))
-       (if arglist (sly-autodoc--fontify arglist)
-         :not-available)))
+     (sly-company-meta (substring-no-properties arg)))
+    ('annotation
+     (concat " " (get-text-property 0 'flags arg)))
     ('doc-buffer
-     (let ((doc (sly-eval `(slynk:describe-symbol ,arg))))
-       (with-current-buffer (company-doc-buffer)
-         (insert doc)
-         (goto-char (point-min))
-         (current-buffer))))
+     (sly-company-doc-buffer (substring-no-properties arg)))
     ('location
-     (let ((source-buffer (current-buffer)))
-       (save-window-excursion
-         (sly-edit-definition arg)
-         (let ((buffer (if (eq source-buffer (current-buffer))
-                           sly-xref-last-buffer
-                         (current-buffer))))
-           (when (buffer-live-p buffer)
-             (cons buffer (with-current-buffer buffer
-                            (point))))))))
+     (sly-company-location (substring-no-properties arg)))
     ('post-completion)
-    ('sorted nil)))
+    ('sorted
+     (eq sly-company-completion 'fuzzy))))
 
 ;; Automatically add `sly-company' to `company-backends' on library
 ;; load. It's a noop unless `sly-company-mode' is non-nil.
