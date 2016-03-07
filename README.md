@@ -21,6 +21,12 @@ your `~/.emacs` or `~/.emacs.d/init/el` init file is:
 (add-hook 'sly-mode-hook 'sly-company-mode)
 ```
 
+You need to add `company-sly` backend to `company-backends` manually:
+
+```el
+(add-to-list 'company-backends 'sly-company)
+```
+
 Optionally, use `M-x sly-company-mode` in the buffers where you want
 completion to happen.
 
