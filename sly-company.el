@@ -100,15 +100,15 @@ is recommended."
         (lambda (result)
           (funcall callback
                    (mapcar (lambda (completion)
-                             (propertize (first completion)
-                                         'score (second completion)
-                                         'flags (fourth completion)))
+                             (propertize (cl-first completion)
+                                         'score (cl-second completion)
+                                         'flags (cl-fourth completion)))
                            (cl-first result))))
         package))))
 
 (defun sly-company-fetch-candidates-async (prefix)
   (cons :async
-        (ecase sly-company-completion
+        (cl-ecase sly-company-completion
           (simple (sly-company-fetch-candidates-simple prefix))
           (fuzzy (sly-company-fetch-candidates-fuzzy prefix)))))
 
